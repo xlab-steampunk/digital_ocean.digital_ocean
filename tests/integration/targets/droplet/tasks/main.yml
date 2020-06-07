@@ -1,0 +1,79 @@
+- name: Create a new droplet (check mode)
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+    name: test-droplet
+    size: s-1vcpu-1gb
+    region: fra1
+    image: centos-8-x64
+    unique_name: true
+    tags: [ ansible, test, tags ]
+  check_mode: true
+  register: result
+
+- assert:
+    that:
+      - result is success
+      - result is changed
+
+- name: Create a new droplet
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+    name: test-droplet
+    size: s-1vcpu-1gb
+    region: fra1
+    image: centos-8-x64
+    unique_name: true
+    tags: [ ansible, test, tags ]
+  register: result
+
+- assert:
+    that:
+      - result is success
+      - result is changed
+      - "result.data.droplet.name == 'test-droplet'"
+      - "result.data.droplet.size_slug == 's-1vcpu-1gb'"
+      - "result.data.droplet.region.slug == 'fra1'"
+      - "result.data.droplet.image.slug == 'centos-8-x64'"
+      - "result.data.droplet.tags == ['ansible', 'test', 'tags']"
+
+- name: Check for creation idempotency
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+    name: test-droplet
+    size: s-1vcpu-1gb
+    region: fra1
+    image: centos-8-x64
+    unique_name: true
+    tags: [ ansible, test, tags ]
+  register: result
+
+- assert:
+    that:
+      - result is not changed
+
+- name: Delete a droplet (check mode)
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+    name: test-droplet
+    unique_name: true
+    state: absent
+  check_mode: true
+  register: result
+
+- assert:
+    that:
+      - result is success
+      - result is changed
+
+- name: Delete a droplet
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+    name: test-droplet
+    unique_name: true
+    state: absent
+  register: result
+
+- assert:
+    that:
+      - result is success
+      - result is changed
