@@ -1,3 +1,14 @@
+- name: Make sure we have id or name parameter
+  digital_ocean.digital_ocean.droplet:
+    oauth_token: "{{ do_api_token }}"
+  ignore_errors: true
+  register: result
+
+- assert:
+    that:
+      - result is failed
+      - "'id, name' in result.msg"
+
 - name: Create a new droplet (check mode)
   digital_ocean.digital_ocean.droplet:
     oauth_token: "{{ do_api_token }}"
@@ -35,6 +46,7 @@
       - "result.data.droplet.region.slug == 'fra1'"
       - "result.data.droplet.image.slug == 'centos-8-x64'"
       - "result.data.droplet.tags == ['ansible', 'test', 'tags']"
+      - "result.data.droplet.status == 'active'"
 
 - name: Check for creation idempotency
   digital_ocean.digital_ocean.droplet:
